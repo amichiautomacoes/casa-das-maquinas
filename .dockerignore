@@ -1,0 +1,14 @@
+# Envia ao build somente o Dockerfile e a aplicacao web.
+**
+!Dockerfile
+!visualizacao/
+!visualizacao/**
+visualizacao/.env
+visualizacao/**/.env
+visualizacao/*.json
+visualizacao/**/*.json
+visualizacao/**/*.pem
+visualizacao/**/*.key
+**/__pycache__/
+**/.pytest_cache/
+visualizacao/tests/

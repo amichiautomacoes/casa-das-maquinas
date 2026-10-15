@@ -1,0 +1,19 @@
+# Este repositorio publica somente o dashboard e seus arquivos de implantacao.
+/*
+!/.gitignore
+!/.dockerignore
+!/Dockerfile
+!/README.md
+!/visualizacao/
+
+venv/
+.venv/
+.env
+.env.*
+!.env.example
+*.json
+*.pem
+*.key
+__pycache__/
+*.pyc
+.pytest_cache/
