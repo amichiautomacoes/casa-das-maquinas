@@ -87,6 +87,7 @@ visualizacao/
 │   └── dashboard.css
 └── tests/
     ├── __init__.py
+    ├── test_auth.py            # Base64, credenciais completas e formatos anteriores
     ├── test_dashboard.py       # Rotas, filtros, abas e credenciais
     ├── test_executive.py       # KPIs, metas e atalhos de período
     ├── test_decoupling.py      # Dois eixos e agregação temporal
@@ -139,7 +140,7 @@ As variáveis do processo têm prioridade sobre o `.env` da raiz. Os valores de 
 | `BIGQUERY_LOCATION` | `southamerica-east1` |
 | `BIGQUERY_MAXIMUM_BYTES_BILLED` | `104857600` — limite de 100 MiB por consulta |
 | `BIGQUERY_QUERY_TIMEOUT` | `120` segundos |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Chave PEM, JSON completo da conta de serviço ou caminho de um JSON montado no container |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Base64 do JSON completo da conta de serviço (recomendado no EasyPanel); também aceita JSON direto, chave PEM ou caminho de um JSON montado no container |
 | `GCP_SERVICE_ACCOUNT_EMAIL` | Necessário quando o ambiente fornece somente a chave PEM e não há JSON local |
 | `GCP_TOKEN_URI` | `https://oauth2.googleapis.com/token` |
 | `GCP_SERVICE_ACCOUNT_FILE` | JSON com os dados da conta; usado como complemento ao PEM no desenvolvimento local |
@@ -148,9 +149,9 @@ As variáveis do processo têm prioridade sobre o `.env` da raiz. Os valores de 
 | `DASH_URL_BASE_PATHNAME` | `/dashboard/` |
 | `TRUST_PROXY` | `false` local; `true` no Docker para o proxy do EasyPanel |
 
-**Configuração local atual:** o PEM já está no `.env` da raiz. A aplicação complementa a chave com os dados do JSON `casa-das-maquinas-a8aeb8e4800f.json`, como no projeto existente.
+**Configuração local atual:** `GOOGLE_APPLICATION_CREDENTIALS`, no `.env` da raiz, contém o Base64 de um JSON completo da conta de serviço. A conversão preserva a chave PEM ativa e os dados da conta, permitindo copiar uma única linha para o EasyPanel sem depender do JSON local.
 
-**Configuração do futuro container:** forneça o JSON completo em `GOOGLE_APPLICATION_CREDENTIALS` ou o PEM junto com `GCP_SERVICE_ACCOUNT_EMAIL` e `GCP_PROJECT_ID`. Com esses campos no ambiente, o container não depende do JSON local. O PEM pode usar quebras de linha escapadas como `\n`.
+**Configuração do container:** copie somente a variável `GOOGLE_APPLICATION_CREDENTIALS` com o Base64 do JSON completo para o ambiente do EasyPanel. O aplicativo decodifica esse valor no servidor e não exige outras variáveis de credenciais. Continuam aceitos JSON direto e PEM junto com `GCP_SERVICE_ACCOUNT_EMAIL` e `GCP_PROJECT_ID`.
 
 O Docker copia somente a pasta `visualizacao`. O `.dockerignore` exclui o `.env`, os JSONs de credenciais, a `.venv` e `Raw`. O `.gitignore` existente também exclui o `.env` e os JSONs. As credenciais ficam no servidor e não são enviadas ao navegador.
 
@@ -285,6 +286,8 @@ Os testes usam dados sintéticos e não consultam o GCP. Cobrem rotas Flask, ass
 
 `test_financial.py` valida deduções e devoluções na cascata, margens ponderadas, meses/anos corretos, abrangência mensal de filtros parciais, ausência de custos, zeros sem registros, prejuízo e receita zero, conciliação, navegação HTTP e carregamento de cada fonte uma única vez. `create_app(..., dataframe=..., financial_frame=...)` injeta dados sintéticos; fornecer apenas `dataframe` usa um financeiro vazio, sem consultar o GCP.
 
+`test_auth.py` valida JSON completo em Base64 sem arquivo local ou variáveis adicionais, PEM em Base64 com metadados explícitos, compatibilidade com JSON direto e arquivo montado, campos obrigatórios e rejeição de valores corrompidos sem expor a credencial nos erros.
+
 ## Docker e próxima etapa no EasyPanel
 
 O Dockerfile fica na raiz e usa `visualizacao/requirements.txt`, evitando carregar Airflow, Prefect e outros componentes de ETL no processo web.
@@ -296,7 +299,7 @@ docker build -t casa-das-maquinas-dashboard .
 docker run --rm -p 8505:8505 --env-file .env casa-das-maquinas-dashboard
 ```
 
-Antes do `docker run`, acrescente ao `.env` os dados da conta necessários ao container ou use o JSON completo na variável. O `.env` local atual contém apenas o PEM e, sozinho, depende de um JSON que não é copiado para a imagem.
+Antes do `docker run`, configure `GOOGLE_APPLICATION_CREDENTIALS` com o Base64 do JSON completo da conta. A variável do `.env` local já está nesse formato e funciona sem copiar arquivos de credenciais para a imagem.
 
 Para a próxima etapa no EasyPanel:
 

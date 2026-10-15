@@ -1,5 +1,7 @@
 """Carrega credenciais apenas no servidor; suporta .env local e EasyPanel."""
 
+import base64
+import binascii
 import json
 from pathlib import Path
 
@@ -27,6 +29,17 @@ def load_credentials(environment: dict[str, str] | None = None) -> service_accou
     value = env.get("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
     if not value:
         raise ValueError("Defina GOOGLE_APPLICATION_CREDENTIALS no .env ou no ambiente do container.")
+
+    if not value.startswith(("{", "-----BEGIN PRIVATE KEY-----")):
+        try:
+            decoded = base64.b64decode(value, validate=True).decode("utf-8-sig").strip()
+        except (binascii.Error, UnicodeDecodeError, ValueError):
+            # Mantem o suporte a caminhos de arquivos JSON montados no container.
+            decoded = None
+        if decoded is not None:
+            if not decoded.startswith(("{", "-----BEGIN PRIVATE KEY-----")):
+                raise ValueError("O Base64 das credenciais precisa conter um JSON de conta de servico ou uma chave PEM.")
+            value = decoded
 
     if value.startswith("{"):
         try:
