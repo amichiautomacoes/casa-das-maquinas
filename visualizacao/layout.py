@@ -1,4 +1,4 @@
-"""Estrutura principal: navegacao, filtros compartilhados e pagina ativa."""
+"""Estrutura principal: cabecalho, filtros e Visao Geral Executiva."""
 
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
@@ -10,7 +10,7 @@ import pandas as pd
 from .charts import filter_frame
 from .config import METRICS
 from .financial import empty_financial_frame, filter_financial_frame
-from .pages import PAGES, Page
+from .pages.visao_geral_executiva import layout as executive_layout
 
 
 def current_period(mode: str = "month", today: date | None = None):
@@ -34,8 +34,7 @@ def period_label(frame: pd.DataFrame) -> str:
     return f"{days} {unit} com registro no período selecionado"
 
 
-def create_layout(frame: pd.DataFrame, pages: tuple[Page, ...] = PAGES, *, financial_frame=None):
-    initial_page = pages[0]
+def create_layout(frame: pd.DataFrame, *, financial_frame=None):
     finances = empty_financial_frame() if financial_frame is None else financial_frame
     available_dates = pd.concat([frame[["data"]], finances[["data"]]], ignore_index=True)
     year, start, end = current_period()
@@ -53,9 +52,6 @@ def create_layout(frame: pd.DataFrame, pages: tuple[Page, ...] = PAGES, *, finan
             html.Div([html.Span("Dados disponíveis até", className="header-caption"), html.Strong(available_until)], className="data-status"),
         ], fluid=True, class_name="header-inner"), className="app-header"),
         dbc.Container([
-            dbc.Tabs([
-                dbc.Tab(label=page.title, tab_id=page.slug) for page in pages
-            ], id="main-tabs", active_tab=initial_page.slug, class_name="page-tabs"),
             html.Div([
                 html.Div([
                     html.Span("Acumulado", className="period-shortcuts-label"),
@@ -79,12 +75,11 @@ def create_layout(frame: pd.DataFrame, pages: tuple[Page, ...] = PAGES, *, finan
                     html.Div([html.Label("Indicador do gráfico", htmlFor="metric-filter"), dcc.Dropdown(
                         id="metric-filter", options=[{"label": label, "value": name} for name, (label, _) in METRICS.items()],
                         value="sessoes", clearable=False,
-                    )], id="metric-control", className="metric-control",
-                        style={} if initial_page.has_metric_selector else {"display": "none"}),
+                    )], id="metric-control", className="metric-control"),
                 ], className="filters-grid"),
             ], className="filters-panel"),
             html.Div(period_label(selected), id="period-label", className="period-label"),
-            dcc.Loading(html.Main(initial_page.layout(selected, "sessoes", start_date=start, end_date=end,
-                                                     financial_frame=selected_finances), id="page-content"), type="circle"),
+            dcc.Loading(html.Main(executive_layout(selected, "sessoes", start_date=start, end_date=end,
+                                                  financial_frame=selected_finances), id="page-content"), type="circle"),
         ], fluid=True, class_name="main-container"),
     ])

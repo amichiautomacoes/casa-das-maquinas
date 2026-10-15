@@ -11,7 +11,6 @@ from .config import PACKAGE_ROOT, Settings
 from .data_loader import load_financials, load_indicators, prepare_dataframe
 from .financial import empty_financial_frame, prepare_financial_frame
 from .layout import create_layout
-from .pages import PAGES
 
 
 def create_app(settings: Settings | None = None, dataframe: pd.DataFrame | None = None,
@@ -41,7 +40,7 @@ def create_app(settings: Settings | None = None, dataframe: pd.DataFrame | None 
         assets_folder=str(PACKAGE_ROOT / "assets"),
         title="Casa das Máquinas | Indicadores", update_title="Atualizando…",
     )
-    dashboard.layout = create_layout(frame, pages=PAGES, financial_frame=finances)
-    register_callbacks(dashboard, frame, pages=PAGES, financial_frame=finances)
+    dashboard.layout = create_layout(frame, financial_frame=finances)
+    register_callbacks(dashboard, frame, financial_frame=finances)
     server.extensions["dash_app"] = dashboard
     return server

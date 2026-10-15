@@ -33,24 +33,6 @@ def filter_frame(frame: pd.DataFrame, year, start_date, end_date) -> pd.DataFram
     return frame.loc[mask].copy()
 
 
-def summaries(frame: pd.DataFrame) -> list[tuple[str, str]]:
-    def total(column):
-        return frame[column].sum(min_count=1)
-
-    revenue, investment = total("faturamento_real"), total("investimento_total")
-    sessions, sales = total("sessoes"), total("vendas")
-    conversion = safe_ratio(sales, sessions)
-    roas = safe_ratio(revenue, investment)
-    return [
-        ("Faturamento real", format_value(revenue, "currency")),
-        ("Investimento total", format_value(investment, "currency")),
-        ("Sessões", format_value(sessions, "integer")),
-        ("Vendas", format_value(sales, "integer")),
-        ("Conversão do período", format_value(conversion, "percent")),
-        ("ROAS do período", format_value(roas, "ratio")),
-    ]
-
-
 def safe_ratio(numerator, denominator):
     if pd.isna(numerator) or pd.isna(denominator) or denominator <= 0:
         return None
@@ -128,21 +110,6 @@ def _daily_grid(frame: pd.DataFrame) -> pd.DataFrame:
     # Datas sem registro viram lacunas, evitando linhas que ligam meses ausentes.
     days = pd.date_range(frame["data"].min(), frame["data"].max(), freq="D", name="data")
     return frame.set_index("data").reindex(days).reset_index()
-
-
-def series_figure(frame: pd.DataFrame, title: str, columns: tuple[tuple[str, str, str], ...], kind: str = "number") -> go.Figure:
-    figure = _figure(title)
-    values = _daily_grid(frame)
-    for column, name, color in columns:
-        figure.add_trace(go.Scatter(
-            x=values["data"], y=values[column], name=name, mode="lines",
-            line={"color": color, "width": 2}, connectgaps=False,
-            hovertemplate=("R$ %{y:,.2f}" if kind == "currency" else "%{y:,.0f}") + "<extra></extra>",
-        ))
-    figure.update_yaxes(title="R$" if kind == "currency" else None, separatethousands=True)
-    if frame.empty:
-        figure.add_annotation(text="Sem dados no período selecionado", x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False)
-    return figure
 
 
 def period_totals(frame: pd.DataFrame, columns, start_date=None, end_date=None):

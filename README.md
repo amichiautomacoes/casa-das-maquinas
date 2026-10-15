@@ -2,6 +2,8 @@
 
 Aplicação de indicadores em Flask, Dash, Plotly e Pandas, com dados consultados no BigQuery. Este repositório contém somente a visualização e os arquivos necessários à implantação; o ETL e os dados locais ficam fora do versionamento.
 
+A interface apresenta somente a **Visão Geral Executiva**, com seus KPIs, análises de mídia, mix e clientes e resultado financeiro.
+
 ## Implantar no EasyPanel
 
 1. Crie um serviço **App**, conecte este repositório e selecione a branch `main`.

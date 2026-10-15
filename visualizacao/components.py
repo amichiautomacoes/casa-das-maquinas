@@ -1,4 +1,4 @@
-"""Componentes de apresentacao compartilhados pelas paginas do dashboard."""
+"""Componentes de apresentacao da Visao Geral Executiva."""
 
 import dash_bootstrap_components as dbc
 from dash import dcc, html
@@ -135,9 +135,3 @@ def table_section(frame: pd.DataFrame, title: str, columns: tuple[str, ...]):
                  className="table-heading"),
         recent_table(frame, columns),
     ], className="table-panel")
-
-
-def pending_section(title: str, explanation: str):
-    return html.Section([
-        html.H3(title), html.P(explanation),
-    ], className="information-panel")

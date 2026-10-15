@@ -165,8 +165,8 @@ class FinancialCallbackTests(unittest.TestCase):
                 server = create_app(Settings())
                 self.harness.client = server.test_client()
                 self.harness.dashboard = server.extensions["dash_app"]
-                for page in ("visao-geral-executiva", "performance-midia"):
-                    self.assertEqual(self.harness.post_dashboard("2026", "2026-07-01", "2026-07-31", tab=page).status_code, 200)
+                for start, end in (("2026-07-01", "2026-07-31"), ("2026-01-01", "2026-12-31")):
+                    self.assertEqual(self.harness.post_dashboard("2026", start, end).status_code, 200)
                 daily.assert_called_once()
                 financial.assert_called_once()
                 self.assertEqual(self.harness.client.get("/healthz").get_json()["financial_months"], 4)

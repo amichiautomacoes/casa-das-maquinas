@@ -9,17 +9,10 @@ body { margin: 0; background: #f4f7fb; color: var(--ink); font-family: "Segoe UI
 .data-status { display: grid; gap: 4px; text-align: right; font-size: 14px; }
 .header-caption { color: #b2c4d6; font-size: 12px; }
 .main-container { max-width: 1600px; padding: 30px 32px; }
-.page-tabs { margin-bottom: 24px; gap: 4px; }
-.page-tabs .nav-link { color: var(--muted); border-radius: 8px 8px 0 0; padding: 12px 16px; font-size: 14px; }
-.page-tabs .nav-link.active { color: var(--ink); font-weight: 600; background: var(--surface); }
 .filters-grid { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
 .year-control { flex: 1 1 140px; }
 .date-control { flex: 2 1 320px; }
 .metric-control { flex: 2 1 260px; }
-.information-panel { margin-top: 24px; padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-.information-panel h3 { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
-.information-panel p, .page-note { color: var(--muted); font-size: 14px; line-height: 1.6; }
-.information-panel p { margin: 0; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 16px; }
 .section-heading h2 { font-size: 24px; font-weight: 700; margin: 0 0 6px; }
 .section-heading p { color: var(--muted); margin: 0; font-size: 14px; }

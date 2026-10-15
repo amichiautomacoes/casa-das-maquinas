@@ -21,9 +21,9 @@ O catálogo `PARQUET_DOCUMENTACAO.md`, quando disponível no ambiente de desenvo
 
 ## Estado atual
 
-A **primeira página, Visão Geral Executiva**, reúne os quatro KPIs, a Curva de Desacoplamento, as três análises complementares e a seção financeira final. **Performance de Mídia**, **Mix de Vendas & Produtos** e **Saúde de Clientes & Retenção** são tanto títulos de seções da primeira página quanto nomes de abas já existentes; o usuário solicitou as novas visualizações dentro da primeira página.
+A **Visão Geral Executiva** é a única página do dashboard. Ela reúne os quatro KPIs, a Curva de Desacoplamento, as seções **Performance de Mídia**, **Mix de Vendas & Produtos** e **Saúde de Clientes & Retenção**, o indicador selecionável, os resultados recentes e a seção financeira final. As páginas adicionais e a navegação por abas foram removidas.
 
-A última validação registrada, em **15/10/2026**, passou nos **50 testes** e conferiu os cálculos e callbacks com dados reais do BigQuery. Não há inspeção visual automatizada concluída no navegador registrada neste ambiente. O Dockerfile está preparado; build da imagem e implantação no EasyPanel seguem como próximas etapas de infraestrutura.
+A validação da página única, em **15/10/2026**, passou nos **56 testes**, com dados sintéticos e sem consultar o GCP. A validação anterior dos cálculos e callbacks com dados reais do BigQuery permanece registrada; não há inspeção visual automatizada concluída no navegador neste ambiente. O Dockerfile e a configuração para o EasyPanel usam a porta **8505**.
 
 ## Fluxo dos dados
 
@@ -43,8 +43,8 @@ flowchart LR
 
 1. `data_loader.py` lê os arquivos SQL e consulta indicadores diários e financeiro mensal com `google-cloud-bigquery`.
 2. Os resultados são convertidos por `RowIterator.to_dataframe()`: os indicadores têm uma data única por linha e o financeiro tem uma competência mensal única por linha.
-3. `app.py` carrega o registro de páginas em `pages/`; `layout.py` monta a navegação e os filtros.
-4. `callbacks.py` entrega cópias filtradas dos DataFrames ao script da aba ativa. Cada página monta suas seções usando os módulos de gráficos e os componentes compartilhados.
+3. `app.py` integra Flask e Dash; `layout.py` monta o cabeçalho, os filtros e a Visão Geral Executiva.
+4. `callbacks.py` entrega cópias filtradas dos DataFrames a `pages/visao_geral_executiva.py`, que monta suas seções usando os módulos de gráficos e os componentes compartilhados.
 
 As tabelas consultadas são `casa-das-maquinas.casa_maquinas.tb_indicadores_diarios` e `casa-das-maquinas.casa_maquinas.casa_maquina_bruto`. A segunda fornece as células de DRE e PLANO 2026 para o financeiro mensal. A aplicação faz somente consultas de leitura.
 
@@ -68,18 +68,15 @@ visualizacao/
 ├── financial.py                # Validacao, filtros mensais e margens da DRE
 ├── financial_section.py        # Cascata Plotly, resumo e tabela financeira
 ├── components.py               # Cards, gráficos, tabelas e seções compartilhados
-├── layout.py                   # Navegação e filtros comuns às quatro páginas
-├── callbacks.py                # Troca de aba e filtros no DataFrame
+├── layout.py                   # Cabeçalho, filtros e página executiva
+├── callbacks.py                # Filtros de período e indicador no DataFrame
 ├── run.py                      # Execução local no Windows
 ├── wsgi.py                     # Entrada Gunicorn para Docker/Linux
 ├── requirements.txt            # Dependências exclusivas da aplicação web
 ├── .env.example                # Modelo de configuração, sem chave real
 ├── pages/
-│   ├── __init__.py              # Registro das páginas carregadas pelo app.py
-│   ├── visao_geral_executiva.py
-│   ├── performance_midia.py
-│   ├── mix_vendas_produtos.py
-│   └── saude_clientes_retencao.py
+│   ├── __init__.py
+│   └── visao_geral_executiva.py  # Única página do dashboard
 ├── sql/
 │   ├── indicadores_diarios.sql
 │   └── financeiro_mensal.sql    # Cruzamento das celulas de DRE e PLANO 2026
@@ -88,7 +85,7 @@ visualizacao/
 └── tests/
     ├── __init__.py
     ├── test_auth.py            # Base64, credenciais completas e formatos anteriores
-    ├── test_dashboard.py       # Rotas, filtros, abas e credenciais
+    ├── test_dashboard.py       # Rotas, filtros, página única e credenciais
     ├── test_executive.py       # KPIs, metas e atalhos de período
     ├── test_decoupling.py      # Dois eixos e agregação temporal
     ├── test_insights.py        # Mídia, ticket e registros de clientes
@@ -157,26 +154,19 @@ O Docker copia somente a pasta `visualizacao`. O `.dockerignore` exclui o `.env`
 
 ## Comportamento do dashboard
 
-As quatro abas são carregadas dentro de `/dashboard/` pelo mesmo Flask/Dash:
+O dashboard abre diretamente na **Visão Geral Executiva**, em `/dashboard/`, sem navegação por abas. O módulo `pages/visao_geral_executiva.py` expõe `layout(frame, metric, *, start_date=None, end_date=None, financial_frame=None)` e concentra todas as seções da página.
 
-| Aba | Script | Seções atuais |
-| --- | --- | --- |
-| Visão Geral Executiva | `pages/visao_geral_executiva.py` | Quatro cards; Curva de Desacoplamento; mídia, mix e clientes; indicador selecionável, resultados recentes e seção financeira final |
-| Performance de Mídia | `pages/performance_midia.py` | Investimentos por canal, evolução diária e registros recentes; seção para futura atribuição de resultados |
-| Mix de Vendas & Produtos | `pages/mix_vendas_produtos.py` | Vendas, receita, conversão, ticket registrado e seção para integrar itens/produtos |
-| Saúde de Clientes & Retenção | `pages/saude_clientes_retencao.py` | Somas diárias de clientes, evolução, revisão da origem e seção para integrar retenção/recompra |
+O contexto financeiro é outro DataFrame, filtrado por competência mensal. As datas representam o período solicitado, mesmo quando não há resultados ou há dias sem registro. Os filtros redesenham a mesma página a partir dos DataFrames em memória, sem novas consultas ao BigQuery.
 
-Cada script expõe `layout(frame, metric, *, start_date=None, end_date=None, financial_frame=None)` e concentra os módulos visuais da sua etapa. O contexto financeiro é outro DataFrame, filtrado por competência mensal. As datas representam o período solicitado, mesmo quando não há resultados ou há dias sem registro. Para alterar uma página, edite esse script. Para adicionar outra aba, crie o módulo em `pages/` e inclua uma entrada em `PAGES`, no `pages/__init__.py`. A navegação usa esse registro; as páginas não consultam o BigQuery diretamente.
-
-- Filtros por ano e período compartilhados entre as abas. A seleção inicial é do primeiro dia do mês atual até hoje, no fuso `America/Sao_Paulo`; os atalhos **Mês atual** e **Ano atual** restauram os respectivos acumulados. O filtro manual permite consultar anos e períodos históricos.
-- O seletor de indicador aparece na Visão Geral Executiva. Ao trocar de aba, o ano e o período selecionados são preservados.
+- Filtros por ano e período aplicados a todas as seções. A seleção inicial é do primeiro dia do mês atual até hoje, no fuso `America/Sao_Paulo`; os atalhos **Mês atual** e **Ano atual** restauram os respectivos acumulados. O filtro manual permite consultar anos e períodos históricos.
+- O seletor de indicador controla o gráfico de evolução diária e preserva o ano e o período selecionados.
 - Tabelas dos últimos 12 dias com registro no período escolhido.
 - Datas sem registro aparecem como lacunas nos gráficos. Valores ausentes são exibidos como `—`.
-- A conversão do período usa `soma(vendas) / soma(sessões)`, e o ROAS usa `soma(faturamento_real) / soma(investimento_total)`.
+- O ROAS usa `soma(faturamento_real) / soma(Meta Ads + Google Ads + Outros)`.
 
 ### Ordem da primeira página
 
-Depois do cabeçalho, das abas, dos filtros e do contador de dias com registro, o conteúdo segue esta sequência:
+Depois do cabeçalho, dos filtros e do contador de dias com registro, o conteúdo segue esta sequência:
 
 | Ordem | Seção | Visualização principal | Implementação |
 | --- | --- | --- | --- |
@@ -204,7 +194,7 @@ Os cards usam `dbc.Card`, grid responsivo Bootstrap (quatro colunas em telas gra
 
 ROAS e ticket usam as somas do período, sem fazer a média dos índices diários. Os gráficos pequenos mostram a evolução **diária**; o gráfico de atingimento marca a meta em 100%, inclusive quando ela é superada. O status é verde a partir de 100%, amarelo de 90% até menos de 100% e vermelho abaixo de 90%. A cor é acompanhada do percentual e de uma descrição textual.
 
-A página executiva recalcula também `investimento_total` e `roas_real` em uma cópia do DataFrame para manter gráficos, seletor e tabela coerentes com seus cards. Essa definição de investimento segue os três canais solicitados: não soma `meta_api`, que é bruto, nem `investimento_real`, que representa sua conversão. O campo `investimento_total` da origem inclui essa conversão; as demais páginas continuam mostrando os valores registrados na origem.
+A página executiva recalcula também `investimento_total` e `roas_real` em uma cópia do DataFrame para manter gráficos, seletor e tabela coerentes com seus cards. Essa definição de investimento segue os três canais solicitados: não soma `meta_api`, que é bruto, nem `investimento_real`, que representa sua conversão. O campo `investimento_total` da origem inclui essa conversão, por isso é recalculado antes da apresentação.
 
 Canais ausentes aparecem como `—` no detalhamento; a soma considera os valores registrados. Se todos os canais estiverem ausentes, o investimento permanece `—`. Divisão por zero e períodos sem dados também aparecem como `—`.
 
@@ -229,7 +219,7 @@ As cores dos eixos correspondem às linhas. O texto de apoio explica que cada ei
 
 ### Três análises complementares da primeira página
 
-As seções **Performance de Mídia**, **Mix de Vendas & Produtos** e **Saúde de Clientes & Retenção** aparecem na primeira página, após a Curva de Desacoplamento. Seus componentes ficam em `insight_sections.py`, os gráficos em `insight_charts.py` e os cálculos em `insights.py`. Usam o mesmo período filtrado e não geram novas consultas ao BigQuery. As abas correspondentes continuam disponíveis.
+As seções **Performance de Mídia**, **Mix de Vendas & Produtos** e **Saúde de Clientes & Retenção** aparecem na Visão Geral Executiva, após a Curva de Desacoplamento. Seus componentes ficam em `insight_sections.py`, os gráficos em `insight_charts.py` e os cálculos em `insights.py`. Usam o mesmo período filtrado e não geram novas consultas ao BigQuery.
 
 **Mídia:** gráfico de três linhas: Meta em azul e Google em verde no eixo de investimento (reais), com ROAS global em laranja tracejada no eixo direito. A granularidade acompanha a Curva de Desacoplamento: diária dentro do mês, mensal em períodos maiores. O ROAS é recalculado por `soma(faturamento_real) / soma(Meta Ads + Google Ads + Outros)` a cada ponto; não se usa a média dos ROAS diários. A fonte permite observar a evolução conjunta de gasto e retorno global. ROAS por canal requer receita atribuída.
 
@@ -241,7 +231,7 @@ Como a fonte é diária, cada venda recebe a faixa da média do seu dia. Uma dis
 
 As barras ao lado mostram **investimento por registro de cliente**, como referência: para cada tipo, soma do investimento de marketing nos dias com investimento e contagem válidos, dividida pela soma dos registros desse tipo **nesses mesmos dias**. Assim, um período sem contagem não entra no numerador. O mesmo investimento total é usado como referência em cada tipo, sem rateio. Cada tooltip informa a cobertura, o investimento e os registros usados. O CAC atribuído por tipo exige custos separados entre aquisição e recorrência; a fonte atual não traz essa atribuição nem identificadores para deduplicar clientes.
 
-Períodos sem dados, contagens zero e divisões inválidas geram estados vazios ou valores ausentes. As proteções da seção nova de clientes são independentes do comportamento conservador da aba de clientes existente.
+Períodos sem dados, contagens zero e divisões inválidas geram estados vazios ou valores ausentes.
 
 ### Seção financeira final: DRE × PLANO 2026
 
@@ -270,7 +260,7 @@ Na verificação de 15/10/2026, julho de 2026 apresentou receita de R$ 130.337,9
 
 Há duas consultas ao iniciar cada processo Flask/Gunicorn: indicadores diários e financeiro mensal. Os filtros operam em cópias dos DataFrames em memória. Recarregar a página reutiliza esses conjuntos; depois de atualizar a Bronze ou a origem financeira, reinicie a aplicação para carregar os novos dados. A transferência usa REST, sem exigir a BigQuery Storage API.
 
-O conjunto original reúne dados de 2025 e 2026. O campo `clientes_recorrentes` ainda usa o mapeamento solicitado para a coluna R, que aparece como CPA nas abas de maio a setembro. A página de clientes exibe o aviso e suspende a soma e a série de recorrentes quando o período contém esses meses. Na página executiva, selecionar esse indicador exibe o aviso junto ao valor bruto.
+O conjunto original reúne dados de 2025 e 2026. O campo `clientes_recorrentes` ainda usa o mapeamento solicitado para a coluna R, que aparece como CPA nas abas de maio a setembro da planilha de origem. A seção de clientes exclui esses registros das proporções e dos custos de referência. Selecionar esse indicador no gráfico diário exibe o aviso junto ao valor bruto.
 
 A base atual não contém itens de pedido nem identificadores de clientes. As seções de mix de produtos e retenção explicam os campos necessários à integração. As somas diárias de clientes não são tratadas como uma contagem de pessoas únicas; ROAS por canal depende de receita atribuída a cada mídia.
 
@@ -280,7 +270,7 @@ A base atual não contém itens de pedido nem identificadores de clientes. As se
 .\.venv\Scripts\python.exe -m unittest discover -s visualizacao/tests -v
 ```
 
-Os testes usam dados sintéticos e não consultam o GCP. Cobrem rotas Flask, assets Dash, navegação entre as quatro abas por callbacks HTTP, filtros compartilhados, períodos vazios, cálculos ponderados dos KPIs, soma dos canais sem duplicação, metas proporcionais e anos bissextos, limites de cores e superação da meta, atalhos de mês/ano atual, lacunas de datas, alinhamento da Curva de Desacoplamento nos dois eixos, agregação mensal/diária e meses parciais, exclusão de recorrentes com origem em CPA e credenciais PEM de container sem JSON local.
+Os testes usam dados sintéticos e não consultam o GCP. Cobrem rotas Flask, assets Dash, carregamento direto da página executiva sem abas, filtros de período e indicador por callbacks HTTP, períodos vazios, cálculos ponderados dos KPIs, soma dos canais sem duplicação, metas proporcionais e anos bissextos, limites de cores e superação da meta, atalhos de mês/ano atual, lacunas de datas, alinhamento da Curva de Desacoplamento nos dois eixos, agregação mensal/diária e meses parciais, exclusão de recorrentes com origem em CPA e credenciais PEM de container sem JSON local.
 
 `test_insights.py` também valida os limites das faixas de ticket, ponderação por vendas, ROAS por somas mensais, pareamento de datas dos clientes, custo por registro com numerador e denominador no mesmo conjunto de dias, exclusão de CPA, contagens inválidas e integração das três seções pelos callbacks HTTP da primeira página.
 

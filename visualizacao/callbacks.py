@@ -6,10 +6,10 @@ import pandas as pd
 from .charts import filter_frame
 from .financial import empty_financial_frame, filter_financial_frame
 from .layout import current_period, date_bounds, period_label
-from .pages import PAGES, Page, get_page
+from .pages.visao_geral_executiva import layout as executive_layout
 
 
-def register_callbacks(app, dataframe: pd.DataFrame, pages: tuple[Page, ...] = PAGES, *, financial_frame=None) -> None:
+def register_callbacks(app, dataframe: pd.DataFrame, *, financial_frame=None) -> None:
     finances = empty_financial_frame() if financial_frame is None else financial_frame
     available_dates = pd.concat([dataframe[["data"]], finances[["data"]]], ignore_index=True)
     @app.callback(
@@ -34,19 +34,15 @@ def register_callbacks(app, dataframe: pd.DataFrame, pages: tuple[Page, ...] = P
     @app.callback(
         Output("page-content", "children"),
         Output("period-label", "children"),
-        Output("metric-control", "style"),
-        Input("main-tabs", "active_tab"),
         Input("year-filter", "value"),
         Input("date-filter", "start_date"),
         Input("date-filter", "end_date"),
         Input("metric-filter", "value"),
     )
-    def update_dashboard(tab, year, start_date, end_date, metric):
+    def update_dashboard(year, start_date, end_date, metric):
         selected = filter_frame(dataframe, year, start_date, end_date)
         selected_finances = filter_financial_frame(finances, year, start_date, end_date)
-        page = get_page(tab, pages)
         return (
-            page.layout(selected, metric, start_date=start_date, end_date=end_date,
-                        financial_frame=selected_finances), period_label(selected),
-            {} if page.has_metric_selector else {"display": "none"},
+            executive_layout(selected, metric, start_date=start_date, end_date=end_date,
+                             financial_frame=selected_finances), period_label(selected),
         )

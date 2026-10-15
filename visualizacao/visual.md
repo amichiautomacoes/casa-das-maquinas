@@ -14,13 +14,12 @@ Use os componentes de **Dash Bootstrap Components** para a estrutura e o **Plotl
 
 ## 2. Estrutura e sequência da primeira página
 
-Há quatro abas. A primeira, **Visão Geral Executiva**, concentra a experiência desenvolvida nesta etapa. As três novas seções de mídia, mix e clientes pertencem a essa primeira página, conforme solicitado pelo usuário. As abas de mesmos nomes também existem.
+A **Visão Geral Executiva** é a única página do dashboard e abre diretamente, sem navegação por abas. As seções de mídia, mix e clientes fazem parte dessa página, junto dos KPIs, da Curva de Desacoplamento e da seção financeira final.
 
 ```text
 Cabeçalho azul escuro
   CM · Casa das Máquinas                 Dados disponíveis até
 
-Abas: Visão Geral | Mídia | Mix | Clientes
 Filtros: Mês atual / Ano atual · Ano · Período · Indicador do gráfico
 Contador de dias com registro
 
@@ -157,7 +156,7 @@ A responsividade deve preservar a leitura dos valores, os rótulos dos eixos e a
 
 **Cabeçalho:** marca à esquerda, disponibilidade dos indicadores à direita. O monograma CM usa fundo azul e raio de 12 px. A data mostra a disponibilidade dos dados carregados.
 
-**Navegação:** abas Bootstrap com estado ativo branco e texto mais forte. Ano e período são compartilhados. Os atalhos “Mês atual” e “Ano atual” usam o fuso `America/Sao_Paulo`. O seletor “Indicador do gráfico” aparece na página executiva.
+**Filtros:** ano e período controlam as seções da Visão Geral Executiva. Os atalhos “Mês atual” e “Ano atual” usam o fuso `America/Sao_Paulo`. O seletor “Indicador do gráfico” permanece sempre visível e controla a série diária.
 
 **Card executivo:** rótulo e badge no topo, valor principal, detalhe da fórmula/meta, visual compacto e rodapé. Faturamento usa um bullet quando há meta; os outros três usam gráficos de evolução diária. A ausência de meta tem um placeholder textual. A implementação está em `executive_kpi_cards`, em [components.py](components.py).
 
@@ -179,7 +178,7 @@ Use `plotly_white`, fundo branco, grade discreta e linhas em torno de 2 a 3 px. 
 | Curva de Desacoplamento | 430 px | Dois eixos Y, cores correspondentes às séries, legenda abaixo e hover unificado |
 | Mídia e ROAS | 420 px | Investimento em R$ no eixo esquerdo; ROAS em `x` no direito |
 | Faixas, bolhas, rosca e custo de referência | 380 px | Comparação de composição ou distribuição |
-| Indicador selecionável e gráficos das abas existentes | 350 px | Evolução diária, título dentro da figura |
+| Indicador selecionável | 350 px | Evolução diária, título dentro da figura |
 | Cascata financeira | 420 px | Valores positivos/negativos e lucro como total, com valores externos às barras |
 
 As alturas são as configuradas no código, com largura responsiva. Ajustes de margem devem acomodar legendas e títulos nos dois eixos.
@@ -214,7 +213,7 @@ Preserve estas distinções nas próximas alterações:
 - Os números de clientes são somas de registros diários. A rosca usa apenas dias com ambos os tipos informados. A identificação de pessoas únicas exige identificadores.
 - A barra de custo usa o título **“Investimento por registro · referência”**. O CAC atribuído por tipo depende de custos separados para aquisição e recorrência. Os tooltips informam investimento, contagem e dias usados.
 - As faixas representam o **ticket médio diário**. A separação de máquinas e peças depende de pedidos, SKUs e categorias; os picos visuais indicam dias para investigação.
-- Na página executiva, investimento é Meta Ads + Google Ads + Outros. Os gráficos dessa página acompanham os cards. As abas existentes ainda têm visuais que usam o total registrado na origem.
+- Na página executiva, investimento é Meta Ads + Google Ads + Outros. Os gráficos e a tabela acompanham a mesma definição dos cards.
 - A meta do card de faturamento vem de [planning.py](planning.py). O previsto da seção financeira vem de PLANO 2026 no BigQuery; essa seção tem sua própria indicação de atingimento e abrangência mensal.
 - A DRE mostra margens **bruta** e **líquida** separadamente. A linha “Margem de lucro” da fonte corresponde à margem líquida.
 
@@ -229,7 +228,7 @@ As notas devem explicar uma decisão que afeta a leitura: fórmula, cobertura, e
 | Alteração | Arquivo de referência |
 | --- | --- |
 | Paleta da interface, tipografia, espaçamentos e ajustes de tela | [assets/dashboard.css](assets/dashboard.css) |
-| Cabeçalho, abas, filtros e conteúdo ativo | [layout.py](layout.py) |
+| Cabeçalho, filtros e página executiva | [layout.py](layout.py) |
 | Ordem das seções da primeira página | [pages/visao_geral_executiva.py](pages/visao_geral_executiva.py) |
 | Cards, tabelas e painéis compartilhados | [components.py](components.py) |
 | Curva, gráficos compactos e indicador selecionável | [charts.py](charts.py) |
@@ -241,7 +240,7 @@ As notas devem explicar uma decisão que afeta a leitura: fórmula, cobertura, e
 | DRE, margens e filtro mensal | [financial.py](financial.py) |
 | Conexão do Bootstrap e aplicação Dash | [app.py](app.py) |
 
-O CSS contém quatro variáveis de base; parte das cores e medidas permanece literal nos módulos Python. Os gráficos das abas existentes têm diferenças de fonte, tons e legendas em relação às novas seções executivas. Ao fazer uma alteração, confira o componente usado e mantenha este briefing fiel ao resultado implementado.
+O CSS contém quatro variáveis de base; parte das cores e medidas permanece literal nos módulos Python. O gráfico de indicador selecionável usa Arial, enquanto as demais seções executivas usam Segoe UI. Ao fazer uma alteração, confira o componente usado e mantenha este briefing fiel ao resultado implementado.
 
 ## 11. Continuidade e conferência visual
 
@@ -251,4 +250,4 @@ Depois de uma mudança de interface, confira desktop (por exemplo, 1440 e 1280 p
 
 Use janeiro de 2025 para clientes com cobertura válida, julho de 2026 para mídia/ticket/DRE, o ano de 2025 para agregação mensal e um período vazio para os estados de ausência. Para verificar o bullet, configure uma meta de teste explicitamente identificada e retire-a após a conferência; o planejamento de produção deve usar os valores aprovados.
 
-Em 15/10/2026, houve validação de cálculos e callbacks com 50 testes e consultas reais ao BigQuery. A inspeção visual automatizada no navegador não foi concluída neste ambiente; este briefing descreve a implementação e as decisões registradas, com base no código.
+Em 15/10/2026, a limpeza para página única foi validada com 56 testes usando dados sintéticos. Uma validação anterior conferiu cálculos e callbacks com dados reais do BigQuery. A inspeção visual automatizada no navegador não foi concluída neste ambiente; este briefing descreve a implementação e as decisões registradas, com base no código.
