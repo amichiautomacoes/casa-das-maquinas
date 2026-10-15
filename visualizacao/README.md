@@ -23,7 +23,7 @@ O catálogo `PARQUET_DOCUMENTACAO.md`, quando disponível no ambiente de desenvo
 
 A **Visão Geral Executiva** é a única página do dashboard. Ela reúne os quatro KPIs, a Curva de Desacoplamento, as seções **Performance de Mídia**, **Mix de Vendas & Produtos** e **Saúde de Clientes & Retenção**, o indicador selecionável, os resultados recentes e a seção financeira final. As páginas adicionais e a navegação por abas foram removidas.
 
-A validação da página única, em **15/10/2026**, passou nos **56 testes**, com dados sintéticos e sem consultar o GCP. A validação anterior dos cálculos e callbacks com dados reais do BigQuery permanece registrada; não há inspeção visual automatizada concluída no navegador neste ambiente. O Dockerfile e a configuração para o EasyPanel usam a porta **8505**.
+A validação da página única, em **15/10/2026**, passou nos **56 testes**, com dados sintéticos e sem consultar o GCP. A validação anterior dos cálculos e callbacks com dados reais do BigQuery permanece registrada. O papel de parede foi conferido no Chrome headless em 1440, 1280, 768 e 390 px, com dados sintéticos, incluindo seu comportamento durante a rolagem. O Dockerfile e a configuração para o EasyPanel usam a porta **8505**.
 
 ## Fluxo dos dados
 
@@ -81,7 +81,9 @@ visualizacao/
 │   ├── indicadores_diarios.sql
 │   └── financeiro_mensal.sql    # Cruzamento das celulas de DRE e PLANO 2026
 ├── assets/
-│   └── dashboard.css
+│   ├── dashboard.css
+│   └── images/
+│       └── Painel de Costura em Tons de Coral.png
 └── tests/
     ├── __init__.py
     ├── test_auth.py            # Base64, credenciais completas e formatos anteriores

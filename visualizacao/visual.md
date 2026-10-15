@@ -8,7 +8,9 @@ Este documento preserva as decisões visuais para as próximas sessões. Leia ju
 
 O dashboard oferece uma leitura gerencial do comércio de máquinas e peças: receita, metas, investimento em mídia, retorno, ticket, clientes e lucro. A leitura começa no resumo, passa pelos cruzamentos e termina no resultado financeiro.
 
-A direção atual é **corporativa, clara e orientada aos dados**: fundo cinza muito claro, superfícies brancas, cabeçalho azul escuro, títulos em azul profundo e cores pontuais para distinguir medidas e estados. Espaços e bordas estabelecem a hierarquia; os valores e as curvas recebem o destaque.
+A direção atual é **corporativa, clara e orientada aos dados**: papel de parede de costura em tons de coral, superfícies brancas, cabeçalho azul escuro, títulos em azul profundo e cores pontuais para distinguir medidas e estados. Espaços e bordas estabelecem a hierarquia; os valores e as curvas recebem o destaque.
+
+O fundo usa `assets/images/Painel de Costura em Tons de Coral.png`, fornecido pelo usuário, em uma camada `body::before` fixa à área visível da tela. A imagem fica centralizada, sem repetição, com `background-size: cover`: preserva sua proporção e recorta o excedente conforme a tela. O conteúdo rola sobre essa camada, e os painéis mantêm o fundo branco. A cor `#f4f7fb` permanece como alternativa durante o carregamento da imagem.
 
 Use os componentes de **Dash Bootstrap Components** para a estrutura e o **Plotly** para as visualizações. Preserve o idioma português do Brasil e a identidade presente na implementação. A marca atual é um monograma textual **CM**, seguido de **Casa das Máquinas** e **Indicadores de desempenho**.
 
@@ -61,7 +63,7 @@ Os quatro primeiros valores são variáveis já definidas em [assets/dashboard.c
 | `--muted` | `#64758b` | Rótulos, explicações, notas e estados vazios |
 | `--line` | `#e4eaf1` | Bordas e divisórias |
 | `--surface` | `#fff` | Cards, filtros e painéis |
-| Fundo da aplicação | `#f4f7fb` | Área externa aos painéis |
+| Fundo da aplicação | Papel de parede coral; alternativa `#f4f7fb` | Imagem fixa à tela, visível na área externa aos painéis |
 | Cabeçalho | `#102d47` | Faixa superior da marca |
 | Texto secundário do cabeçalho | `#b2c4d6` | Subtítulo e legenda de disponibilidade |
 | Azul principal | `#326bba` | Marca CM, destaques e séries principais |
@@ -250,4 +252,4 @@ Depois de uma mudança de interface, confira desktop (por exemplo, 1440 e 1280 p
 
 Use janeiro de 2025 para clientes com cobertura válida, julho de 2026 para mídia/ticket/DRE, o ano de 2025 para agregação mensal e um período vazio para os estados de ausência. Para verificar o bullet, configure uma meta de teste explicitamente identificada e retire-a após a conferência; o planejamento de produção deve usar os valores aprovados.
 
-Em 15/10/2026, a limpeza para página única foi validada com 56 testes usando dados sintéticos. Uma validação anterior conferiu cálculos e callbacks com dados reais do BigQuery. A inspeção visual automatizada no navegador não foi concluída neste ambiente; este briefing descreve a implementação e as decisões registradas, com base no código.
+Em 15/10/2026, a limpeza para página única foi validada com 56 testes usando dados sintéticos. Uma validação anterior conferiu cálculos e callbacks com dados reais do BigQuery. O papel de parede foi conferido no Chrome headless em 1440, 1280, 768 e 390 px, com dados sintéticos: imagem carregada, recorte com `cover`, camada fixa à tela durante a rolagem, cards brancos e ausência de rolagem horizontal nessas telas.
