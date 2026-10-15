@@ -8,9 +8,13 @@ Este documento preserva as decisões visuais para as próximas sessões. Leia ju
 
 O dashboard oferece uma leitura gerencial do comércio de máquinas e peças: receita, metas, investimento em mídia, retorno, ticket, clientes e lucro. A leitura começa no resumo, passa pelos cruzamentos e termina no resultado financeiro.
 
-A direção atual é **corporativa, clara e orientada aos dados**: papel de parede de costura em tons de coral, superfícies brancas, cabeçalho azul escuro, títulos em azul profundo e cores pontuais para distinguir medidas e estados. Espaços e bordas estabelecem a hierarquia; os valores e as curvas recebem o destaque.
+A direção atual é **corporativa, clara e orientada aos dados**: papel de parede de costura em tons de coral visível através de painéis translúcidos, cabeçalho azul escuro translúcido, títulos em azul profundo e cores pontuais para distinguir medidas e estados. Espaços e bordas estabelecem a hierarquia; o fundo participa da identidade sem reduzir a opacidade dos textos e números.
 
-O fundo usa `assets/images/Painel de Costura em Tons de Coral.png`, fornecido pelo usuário, em uma camada `body::before` fixa à área visível da tela. A imagem fica centralizada, sem repetição, com `background-size: cover`: preserva sua proporção e recorta o excedente conforme a tela. O conteúdo rola sobre essa camada, e os painéis mantêm o fundo branco. A cor `#f4f7fb` permanece como alternativa durante o carregamento da imagem.
+O fundo usa `assets/images/Painel de Costura em Tons de Coral.png`, fornecido pelo usuário, em uma camada `body::before` fixa à área visível da tela. A imagem fica centralizada, sem repetição, com `background-size: cover`: preserva sua proporção e recorta o excedente conforme a tela. O conteúdo rola sobre essa camada. A cor `#f4f7fb` permanece como alternativa durante o carregamento da imagem.
+
+No desktop, os KPIs usam branco a **63%**, as seções e o indicador selecionável a **65%**, filtros e tabela recente a **85%** e o cabeçalho azul a **85%**. O desfoque de **3 px** é aplicado à superfície externa; cabeçalhos e corpos internos ficam transparentes. As figuras Plotly definem tanto `paper_bgcolor` quanto `plot_bgcolor` como `rgba(0,0,0,0)`, evitando áreas brancas sobrepostas. Textos, números e séries permanecem totalmente opacos.
+
+Até **768 px**, os KPIs passam a **80%**, as seções a **82%**, filtros e tabela recente a **93%** e o cabeçalho a **94%**, com desfoque de **0 px**. Os cards do resumo financeiro são transparentes dentro da seção; a tabela financeira recebe uma camada branca a 55% sobre o painel, resultando em aproximadamente 84% no desktop, para proteger a leitura das células.
 
 Use os componentes de **Dash Bootstrap Components** para a estrutura e o **Plotly** para as visualizações. Preserve o idioma português do Brasil e a identidade presente na implementação. A marca atual é um monograma textual **CM**, seguido de **Casa das Máquinas** e **Indicadores de desempenho**.
 
@@ -55,16 +59,18 @@ Este esquema representa a hierarquia, sem fixar proporções de tela. A seção 
 
 ### Base da interface
 
-Os quatro primeiros valores são variáveis já definidas em [assets/dashboard.css](assets/dashboard.css). Os demais são valores literais usados no CSS e nos gráficos.
+Os valores básicos e os tokens de superfície, desfoque, sombra e espaçamento ficam em [assets/dashboard.css](assets/dashboard.css). Parte das cores das figuras permanece literal nos módulos Python.
 
 | Papel | Valor | Uso atual |
 | --- | --- | --- |
 | `--ink` | `#17324d` | Texto principal e títulos |
-| `--muted` | `#64758b` | Rótulos, explicações, notas e estados vazios |
-| `--line` | `#e4eaf1` | Bordas e divisórias |
-| `--surface` | `#fff` | Cards, filtros e painéis |
+| `--muted` | `#52657a` | Rótulos, explicações, notas e estados vazios |
+| `--line` | `rgba(23, 50, 77, 0.13)` | Bordas e divisórias |
+| `--surface` | `rgba(255, 255, 255, 0.65)` | Seções e painel do indicador selecionável |
+| `--surface-kpi` | `rgba(255, 255, 255, 0.63)` | Quatro cards executivos |
+| `--surface-control` | `rgba(255, 255, 255, 0.85)` | Filtros e tabela recente |
 | Fundo da aplicação | Papel de parede coral; alternativa `#f4f7fb` | Imagem fixa à tela, visível na área externa aos painéis |
-| Cabeçalho | `#102d47` | Faixa superior da marca |
+| Cabeçalho | `rgba(16, 45, 71, 0.85)` | Faixa superior da marca |
 | Texto secundário do cabeçalho | `#b2c4d6` | Subtítulo e legenda de disponibilidade |
 | Azul principal | `#326bba` | Marca CM, destaques e séries principais |
 | Verde | `#167d57` | Meta atingida, Google na seção de mídia, resultado positivo |
@@ -74,9 +80,9 @@ Os quatro primeiros valores são variáveis já definidas em [assets/dashboard.c
 | Vermelho | `#c43d4a` | Meta abaixo do limite, deduções e prejuízo |
 | Âmbar | `#a86709` | Atingimento próximo da meta |
 | Fundo de tag | `#e8f0fb` | Tag “Resultados de e-commerce” |
-| Fundo da comparação financeira | `#eef4fc` | Receita prevista e badge de atingimento |
-| Fundo de tabela / resumo financeiro | `#f8fafd` | Cabeçalhos de tabela e cards financeiros |
-| Grade dos gráficos novos | `#e9eef5` | Linhas horizontais discretas |
+| Fundo da comparação financeira | `rgba(238, 244, 252, 0.5)` | Receita prevista e badge de atingimento |
+| Cabeçalhos de tabela | `rgba(248, 250, 253, 0.62)` | Cabeçalhos sobre a superfície da tabela |
+| Grade das análises | `rgba(23, 50, 77, 0.12)` | Linhas horizontais discretas sobre o fundo translúcido |
 
 ### Estados e cores das séries
 
@@ -136,7 +142,7 @@ Os valores principais atuais são exibidos por extenso, com duas casas para moed
 
 O container principal tem largura máxima de **1600 px**, padding **30 px vertical / 32 px horizontal**. Em telas de até **768 px**, passa a **22 px / 14 px**. O cabeçalho acompanha a mesma largura máxima.
 
-Painéis usam borda de **1 px**, raio de **12 px** e fundo branco. Cards executivos têm borda superior de **3 px** na cor do indicador/estado e sombra discreta `0 4px 16px rgba(23, 50, 77, 0.035)`.
+Painéis usam borda de **1 px**, raio de **12 px** e fundo translúcido. Cards executivos têm borda superior de **3 px** na cor do indicador/estado. As superfícies principais compartilham sombra `0 8px 28px rgba(23, 50, 77, 0.07)` e desfoque de 3 px no desktop. A transparência usa cores RGBA de fundo; preserve `opacity: 1` nos componentes para manter seu conteúdo legível.
 
 | Componente | Distribuição e medidas atuais |
 | --- | --- |
@@ -149,7 +155,7 @@ Painéis usam borda de **1 px**, raio de **12 px** e fundo branco. Cards executi
 | Curva e mídia | Gráfico em largura total |
 | Mix | Abaixo de 992 px: empilhado. A partir de 992 px: barras em 7/12 e bolhas em 5/12 |
 | Clientes | Abaixo de 992 px: empilhado. A partir de 992 px: duas colunas de 6/12 |
-| Separação das seções | `mb-4`; pares de gráficos usam `g-3` |
+| Separação das seções | `mb-4` ajustado para 32 px no desktop e 24 px até 768 px; pares de gráficos usam `g-3` |
 | Células de tabela | Padding `12px 18px`, conteúdo sem quebra; container responsivo com rolagem horizontal |
 
 A responsividade deve preservar a leitura dos valores, os rótulos dos eixos e a explicação de cada indicador. Use rolagem dentro das tabelas extensas e permita que filtros, badges e detalhamentos quebrem de linha.
@@ -172,7 +178,7 @@ A responsividade deve preservar a leitura dos valores, os rótulos dos eixos e a
 
 ## 7. Padrões de gráficos
 
-Use `plotly_white`, fundo branco, grade discreta e linhas em torno de 2 a 3 px. As séries executivas temporais usam marcadores, legendas horizontais e tooltip que compara a data. Evite suavizar curvas de forma que altere a leitura dos registros.
+Use `plotly_white` com `paper_bgcolor` e `plot_bgcolor` transparentes, grade discreta e linhas em torno de 2 a 3 px. As séries executivas temporais usam marcadores, legendas horizontais e tooltip que compara a data. Evite suavizar curvas de forma que altere a leitura dos registros.
 
 | Visual | Altura atual | Característica de leitura |
 | --- | --- | --- |
@@ -183,7 +189,7 @@ Use `plotly_white`, fundo branco, grade discreta e linhas em torno de 2 a 3 px. 
 | Indicador selecionável | 350 px | Evolução diária, título dentro da figura |
 | Cascata financeira | 420 px | Valores positivos/negativos e lucro como total, com valores externos às barras |
 
-As alturas são as configuradas no código, com largura responsiva. Ajustes de margem devem acomodar legendas e títulos nos dois eixos.
+As alturas são as configuradas no código, com largura responsiva. Em `insight_sections.py`, a altura também é aplicada ao contêiner `dcc.Graph`, evitando que os gráficos de mix e clientes sejam comprimidos nas colunas Bootstrap. Ajustes de margem devem acomodar legendas e títulos nos dois eixos.
 
 ### Tempo, composição e resultado
 
@@ -242,7 +248,7 @@ As notas devem explicar uma decisão que afeta a leitura: fórmula, cobertura, e
 | DRE, margens e filtro mensal | [financial.py](financial.py) |
 | Conexão do Bootstrap e aplicação Dash | [app.py](app.py) |
 
-O CSS contém quatro variáveis de base; parte das cores e medidas permanece literal nos módulos Python. O gráfico de indicador selecionável usa Arial, enquanto as demais seções executivas usam Segoe UI. Ao fazer uma alteração, confira o componente usado e mantenha este briefing fiel ao resultado implementado.
+O CSS centraliza as variáveis de base e o tratamento das superfícies; parte das cores e medidas permanece literal nos módulos Python. O gráfico de indicador selecionável usa Arial, enquanto as demais seções executivas usam Segoe UI. Ao fazer uma alteração, confira o componente usado e mantenha este briefing fiel ao resultado implementado.
 
 ## 11. Continuidade e conferência visual
 
@@ -252,4 +258,4 @@ Depois de uma mudança de interface, confira desktop (por exemplo, 1440 e 1280 p
 
 Use janeiro de 2025 para clientes com cobertura válida, julho de 2026 para mídia/ticket/DRE, o ano de 2025 para agregação mensal e um período vazio para os estados de ausência. Para verificar o bullet, configure uma meta de teste explicitamente identificada e retire-a após a conferência; o planejamento de produção deve usar os valores aprovados.
 
-Em 15/10/2026, a limpeza para página única foi validada com 56 testes usando dados sintéticos. Uma validação anterior conferiu cálculos e callbacks com dados reais do BigQuery. O papel de parede foi conferido no Chrome headless em 1440, 1280, 768 e 390 px, com dados sintéticos: imagem carregada, recorte com `cover`, camada fixa à tela durante a rolagem, cards brancos e ausência de rolagem horizontal nessas telas.
+Em 15/10/2026, a interface translúcida passou nos 56 testes com dados sintéticos. Uma validação anterior conferiu cálculos e callbacks com dados reais do BigQuery. O visual foi conferido no Chrome headless em 1440, 1280, 768 e 390 px, com dados sintéticos: fundo fixo com `cover`, transparência dos cards e de todas as figuras, opacidade integral do conteúdo, alturas preservadas dos gráficos e ausência de rolagem horizontal nessas telas.

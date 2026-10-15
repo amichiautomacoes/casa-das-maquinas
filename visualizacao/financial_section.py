@@ -34,16 +34,16 @@ def financial_waterfall(frame: pd.DataFrame) -> go.Figure:
     else:
         figure.add_annotation(
             text="Sem DRE completa para os meses selecionados", x=0.5, y=0.5,
-            xref="paper", yref="paper", showarrow=False, font={"color": "#64758b", "size": 13},
+            xref="paper", yref="paper", showarrow=False, font={"color": "#52657a", "size": 13},
         )
     figure.update_layout(
         template="plotly_white", height=420, showlegend=False, separators=",.",
         margin={"l": 60, "r": 30, "t": 50, "b": 65},
         font={"family": "Segoe UI, Arial, sans-serif", "color": "#17324d", "size": 12},
-        paper_bgcolor="white", plot_bgcolor="white", waterfallgap=0.35,
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", waterfallgap=0.35,
     )
     figure.update_xaxes(automargin=True, fixedrange=True)
-    figure.update_yaxes(title="R$", tickformat=",.0f", rangemode="tozero", automargin=True, gridcolor="#e9eef5")
+    figure.update_yaxes(title="R$", tickformat=",.0f", rangemode="tozero", automargin=True, gridcolor="rgba(23,50,77,0.12)")
     return figure
 
 

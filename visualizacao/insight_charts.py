@@ -20,17 +20,17 @@ def _style(figure: go.Figure, height: int = 380) -> go.Figure:
         template="plotly_white", height=height,
         margin={"l": 55, "r": 25, "t": 20, "b": 60},
         font={"family": "Segoe UI, Arial, sans-serif", "color": "#17324d", "size": 12},
-        paper_bgcolor="white", plot_bgcolor="white", separators=",.",
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", separators=",.",
         legend={"orientation": "h", "y": -0.2, "x": 0, "font": {"size": 11}},
     )
     figure.update_xaxes(automargin=True, showgrid=False)
-    figure.update_yaxes(automargin=True, gridcolor="#e9eef5", zeroline=False, rangemode="tozero")
+    figure.update_yaxes(automargin=True, gridcolor="rgba(23,50,77,0.12)", zeroline=False, rangemode="tozero")
     return figure
 
 
 def _empty(figure: go.Figure, message: str):
     figure.add_annotation(text=message, x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False,
-                          font={"size": 13, "color": "#64758b"})
+                          font={"size": 13, "color": "#52657a"})
     return figure
 
 

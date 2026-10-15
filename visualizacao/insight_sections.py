@@ -13,6 +13,7 @@ from .insights import CPA_SOURCE_MONTHS, client_mix, sales_by_daily_ticket
 
 def _graph(figure, graph_id):
     return dcc.Graph(id=graph_id, figure=figure,
+                     style={"height": f"{figure.layout.height}px"},
                      config={"displaylogo": False, "responsive": True, "scrollZoom": False})
 
 

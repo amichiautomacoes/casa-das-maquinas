@@ -50,7 +50,7 @@ def attainment_figure(attainment, color: str) -> go.Figure:
             gauge={
                 "shape": "bullet", "axis": {"range": [0, ceiling], "visible": False},
                 "bar": {"color": color, "thickness": 0.4},
-                "bgcolor": "white", "borderwidth": 0,
+                "bgcolor": "rgba(0,0,0,0)", "borderwidth": 0,
                 "steps": [
                     {"range": [0, 90], "color": "#fbe9ec"},
                     {"range": [90, 100], "color": "#fff2d8"},
@@ -97,7 +97,7 @@ def _figure(title: str) -> go.Figure:
         template="plotly_white", height=350,
         margin={"l": 45, "r": 24, "t": 65, "b": 45},
         font={"family": "Arial, sans-serif", "color": "#17324d"},
-        hovermode="x unified", paper_bgcolor="white",
+        hovermode="x unified", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         legend={"orientation": "h", "y": 1.12, "x": 0},
     )
     figure.update_xaxes(title=None, tickformat="%d/%m/%Y")
@@ -157,7 +157,7 @@ def revenue_figure(frame: pd.DataFrame, start_date=None, end_date=None) -> go.Fi
                    "font": {"color": color, "size": 12}, "standoff": 12},
             tickfont={"color": color, "size": 11}, tickformat=",.0f",
             rangemode="tozero", separatethousands=True, automargin=True,
-            showgrid=not secondary, gridcolor="#e9eef5", zeroline=False,
+            showgrid=not secondary, gridcolor="rgba(23,50,77,0.12)", zeroline=False,
             secondary_y=secondary,
         )
     stride = max(1, (len(values) + 11) // 12)
@@ -166,7 +166,7 @@ def revenue_figure(frame: pd.DataFrame, start_date=None, end_date=None) -> go.Fi
         margin={"l": 64, "r": 64, "t": 16, "b": 80},
         font={"family": "Segoe UI, Arial, sans-serif", "color": "#17324d", "size": 12},
         hovermode="x unified", separators=",.",
-        paper_bgcolor="white", plot_bgcolor="white",
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         legend={"orientation": "h", "y": -0.23, "x": 0, "font": {"size": 11}},
         meta={"aggregation": "monthly" if monthly else "daily"},
     )
@@ -185,7 +185,7 @@ def revenue_figure(frame: pd.DataFrame, start_date=None, end_date=None) -> go.Fi
         figure.add_annotation(
             text="Sem dados no período selecionado", x=0.5, y=0.5,
             xref="paper", yref="paper", showarrow=False,
-            font={"color": "#64758b", "size": 14},
+            font={"color": "#52657a", "size": 14},
         )
     return figure
 

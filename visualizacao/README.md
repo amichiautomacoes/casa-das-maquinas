@@ -25,6 +25,8 @@ A **Visão Geral Executiva** é a única página do dashboard. Ela reúne os qua
 
 A validação da página única, em **15/10/2026**, passou nos **56 testes**, com dados sintéticos e sem consultar o GCP. A validação anterior dos cálculos e callbacks com dados reais do BigQuery permanece registrada. O papel de parede foi conferido no Chrome headless em 1440, 1280, 768 e 390 px, com dados sintéticos, incluindo seu comportamento durante a rolagem. O Dockerfile e a configuração para o EasyPanel usam a porta **8505**.
 
+A interface usa painéis translúcidos sobre o papel de parede coral. No desktop, os KPIs têm fundo branco a 63%, as seções a 65% e os filtros e a tabela recente a 85%, com desfoque de 3 px. As figuras Plotly têm os dois fundos transparentes. Até 768 px, as superfícies ficam mais opacas e o desfoque passa a zero. Textos, números, sinais e cores das séries mantêm opacidade integral. O [briefing visual](visual.md) registra os valores e a conferência responsiva.
+
 ## Fluxo dos dados
 
 ```mermaid
